@@ -48,7 +48,8 @@ class TimeSeriesTransformer(nn.Module):
         dropout_pos_enc: float=0.1,
         dim_feedforward_encoder: int=2048,
         dim_feedforward_decoder: int=2048,
-        num_predicted_features: int=1
+        num_predicted_features: int=1,
+        pretrained_model_path: str = None
         ): 
         super().__init__()
         self.dec_seq_len = dec_seq_len
@@ -66,6 +67,9 @@ class TimeSeriesTransformer(nn.Module):
         decoder_layer = nn.TransformerDecoderLayer(
             dim_val, n_heads, dim_feedforward_decoder, dropout_decoder, batch_first=batch_first).to(device) 
         self.decoder = nn.TransformerDecoder(decoder_layer, n_decoder_layers).to(device) 
+
+        if pretrained_model_path:  # Load pretrained weights if provided
+            self.load_state_dict(torch.load(pretrained_model_path), strict=False) #False: skip mismatch keys
 
     def forward(self, src: Tensor, tgt: Tensor) -> Tensor:
         # Encoder processing
